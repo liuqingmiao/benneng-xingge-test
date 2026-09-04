@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="人格观察档案馆 —— 测一测你的本能心性模式。遇到人和事，你骨子里的第一反应是什么？">
+  <title>人格观察档案馆 · 测一测你的本能心性模式</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部站名 ===== -->
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-seal">档</span>
+      <span class="brand-name">人格观察档案馆<span class="brand-en">PERSONALITY ARCHIVE</span></span>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <!-- ===== 屏幕一：首页 ===== -->
+    <section id="screen-home" class="screen active">
+      <div class="home-card">
+        <p class="file-no">档案编号 · NO. 0012</p>
+        <h1 class="home-title">测一测你的<br>本能心性模式</h1>
+        <p class="home-subtitle">遇到人和事，你骨子里的第一反应是什么？</p>
+        <div class="divider"><span>§</span></div>
+        <p class="home-desc">看清自己的情绪模式、处事方式，以及隐藏的人格倾向。</p>
+        <p class="home-note">共 12 道单选题，凭第一直觉选择，无需深度思考。</p>
+        <button id="btn-start" class="btn-primary">开始探索我的心性</button>
+        <p class="home-foot">每一次选择，都是一次自我观察的存档。</p>
+      </div>
+    </section>
+
+    <!-- ===== 屏幕二：测试页 ===== -->
+    <section id="screen-test" class="screen">
+      <div class="test-card">
+        <div class="test-top">
+          <span id="test-progress-no" class="progress-no">第 01 / 12 题</span>
+          <button id="btn-back" class="btn-back" hidden>‹ 上一题</button>
+        </div>
+        <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+        <h2 id="question-text" class="question-text"></h2>
+        <div id="options" class="options"></div>
+        <p class="test-tip">请凭第一直觉作答</p>
+      </div>
+    </section>
+
+    <!-- ===== 屏幕三：结果页 ===== -->
+    <section id="screen-result" class="screen">
+      <div class="result-card">
+        <div class="stamp-circle"><span>检测<br>完成</span></div>
+        <p class="result-label">你的核心心性模式是</p>
+        <h2 id="result-name" class="result-name"></h2>
+        <p id="result-tagline" class="result-tagline"></p>
+        <p id="result-desc" class="result-desc"></p>
+        <div id="result-tags" class="result-tags"></div>
+
+        <div class="result-composition">
+          <p class="composition-title">你的心性构成</p>
+          <div id="composition-bars" class="composition-bars"></div>
+        </div>
+
+        <p class="result-file-no" id="result-file-no"></p>
+        <button id="btn-restart" class="btn-primary">再测一次</button>
+        <p class="result-foot">结果仅供自我观察参考，不存在好坏之分。</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">人格观察档案馆 © 2026 · 收录每一种真实的人格样本</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
