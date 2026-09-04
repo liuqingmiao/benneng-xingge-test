@@ -179,20 +179,38 @@ function showScreen(name) {
 
 // ---------- 渲染当前题目 ----------
 function renderQuestion() {
-  const item = QUESTIONS[currentIndex];
-  questionText.textContent = item.q;
-  progressNo.textContent = `第 ${String(currentIndex + 1).padStart(2, "0")} / ${QUESTIONS.length} 题`;
-  progressBar.style.width = `${((currentIndex + 1) / QUESTIONS.length) * 100}%`;
-  btnBack.hidden = currentIndex === 0;
 
-  optionsBox.innerHTML = "";
-  Object.entries(item.options).forEach(([key, text]) => {
+    const item = QUESTIONS[currentIndex];
+
+    questionText.textContent = item.q;
+
+    progressNo.textContent = `第 ${String(currentIndex + 1).padStart(2,"0")} / ${QUESTIONS.length} 题`;
+
+    progressBar.style.width = `${((currentIndex + 1) / QUESTIONS.length) * 100}%`;
+
+
+    // 上一题按钮
+    btnBack.hidden = currentIndex === 0;
+
+
+    // 清空旧选项
+    optionsBox.innerHTML = "";
+
+
+    // 生成选项
+    Object.keys(item.options).forEach((key)=>{
+
     const btn = document.createElement("button");
-    btn.className = "option" + (answers[currentIndex] === key ? " selected" : "");
-    btn.innerHTML = `<span class="option-key">${key}</span><span>${text}</span>`;
-    btn.addEventListener("click", () => selectOption(key));
+
+    btn.textContent = key + " · " + item.options[key];
+
+    btn.onclick = () => selectOption(key);
+
     optionsBox.appendChild(btn);
-  });
+
+});
+
+
 }
 
 // ---------- 选择答案 ----------
@@ -223,66 +241,219 @@ function score() {
   return { counts, best };
 }
 
-// ---------- 渲染结果 ----------
+// --------- 渲染结果 ----------
 function showResult() {
-  const { counts, best } = score();
-  const result = RESULTS[best];
 
-  document.getElementById("result-name").textContent = result.name;
-  document.getElementById("result-tagline").textContent = `「${result.tagline}」`;
-  document.getElementById("result-desc").textContent = result.desc;
+    const { counts, best } = score();
 
-  const tagsBox = document.getElementById("result-tags");
-  tagsBox.innerHTML = "";
-  result.tags.forEach(t => {
-    const span = document.createElement("span");
-    span.className = "tag";
-    span.textContent = t;
-    tagsBox.appendChild(span);
-  });
+    const result = RESULTS[best];
 
-  // 心性构成条
-  const barsBox = document.getElementById("composition-bars");
-  barsBox.innerHTML = "";
-  Object.keys(counts).forEach(k => {
-    const row = document.createElement("div");
-    row.className = "comp-row" + (k === best ? " is-top" : "");
-    row.innerHTML = `
-      <span class="comp-label">${k} · ${LETTER_INFO[k]}</span>
-      <span class="comp-track"><span class="comp-fill" data-w="${(counts[k] / QUESTIONS.length) * 100}"></span></span>
-      <span class="comp-count">${counts[k]}</span>`;
-    barsBox.appendChild(row);
-  });
+    const resultBox = document.getElementById("result-desc");
 
-  // 随机档案编号
-  const d = new Date();
-  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  const rand = String(Math.floor(1000 + Math.random() * 9000));
-  document.getElementById("result-file-no").textContent = `档案编号 PQA-${ymd}-${rand} · 已归档`;
+    // 先显示基础结果
+    resultBox.textContent = "正在生成你的专属分析报告，请稍候...";
 
-  showScreen("result");
-  // 动画：条形图延迟填充
-  setTimeout(() => {
-    barsBox.querySelectorAll(".comp-fill").forEach(f => {
-      f.style.width = f.dataset.w + "%";
+
+    // 调用 DeepSeek
+    fetch("https://api.deepseek.com/chat/completions", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+          "Authorization": "Bearer sk-30d87dcf871243c997bfc63c44524b7a",
+        },
+
+        body: JSON.stringify({
+
+            model: "deepseek-chat",
+
+            messages: [
+                {
+                    role: "user",
+
+                    content: `
+请根据以下人格测试结果生成趣味性分析报告。
+
+测试类型：
+${best}
+
+选项统计：
+${JSON.stringify(counts)}
+
+请严格按照下面格式输出：
+
+📋 你的本能心性模式报告
+
+🎯 测试结果：${best}
+
+✨ 性格特点
+
+用3-4句话描述这个类型的人。
+语言轻松、有趣，像心理测试报告。
+不要出现“约多少字”等提示词。
+
+💎 核心优势
+
+用3-5句话描述这个类型最大的优点。
+突出生活、人际、工作中的表现。
+不要写标题说明以外的内容。
+
+⚠️ 潜在需要留意的问题
+
+用2-3句话描述可能存在的小问题。
+语气温和，不批判。
+
+🌱 成长小建议
+
+成长小建议：
+
+请给出2-3条温和、积极、容易执行的成长建议。
+
+要求：
+1. 手机阅读友好。
+2. 每条建议单独一行。
+3. 不要写说教语气。
+4. 不要输出分析过程。
+5. 不要使用长篇大段文字。
+
+
+整体输出格式：
+
+📋 你的本能心性模式报告
+
+🎯 测试结果：
+${best}
+
+✨ 性格特点
+
+请用自然、有趣的语言描述这个人的性格特点。
+分2-3段输出，每段2-3句话。
+让用户感觉像是在了解自己，而不是看心理分析报告。
+
+
+💎 核心优势
+
+请描述这个类型最突出的优势。
+结合生活、人际关系、做事方式进行分析。
+分2-3段输出。
+
+
+⚠️ 潜在需要留意的问题
+
+请温和描述可能存在的小问题。
+不要批判，不要使用负面标签。
+让用户感觉是成长方向。
+
+
+🌱 成长小建议
+
+请提供2-3条简单可执行的小建议。
+每条单独换行。
+语气积极、有鼓励感。
+`
+                }
+            ]
+
+        })
+
+    })
+
+
+    .then(res => res.json())
+
+
+    .then(data => {
+
+resultBox.innerHTML = data.choices[0].message.content
+.replace(/\n\n/g, "<br><br>")
+.replace(/\n/g, "<br>");
+
+    })
+
+
+    .catch(err => {
+
+        resultBox.textContent =
+        "错误：" + err.message;
+
     });
-  }, 120);
-}
 
-// ---------- 重新测试 ----------
-function restart() {
-  currentIndex = 0;
-  answers.fill(null);
-  renderQuestion();
-  showScreen("test");
-}
 
-// ---------- 事件绑定 ----------
-document.getElementById("btn-start").addEventListener("click", restart);
-document.getElementById("btn-restart").addEventListener("click", restart);
-btnBack.addEventListener("click", () => {
-  if (currentIndex > 0) {
-    currentIndex--;
+
+    // 心性构成条
+
+    const barsBox =
+    document.getElementById("composition-bars");
+
+
+    barsBox.innerHTML = "";
+
+
+    Object.keys(counts).forEach(k => {
+
+
+        const row =
+        document.createElement("div");
+
+
+        row.className =
+        "comp-row";
+
+
+        row.innerHTML = `
+
+        <span class="comp-label">
+        ${k} · ${LETTER_INFO[k]}
+        </span>
+
+
+        <span class="comp-track">
+
+        <span class="comp-fill"
+        data-w="${(counts[k] / QUESTIONS.length) * 100}%">
+        </span>
+
+        </span>
+
+
+        <span class="comp-count">
+        ${counts[k]}
+        </span>
+
+        `;
+
+
+        barsBox.appendChild(row);
+
+
+    });
+
+
+
+    // 生成档案编号
+
+    const d = new Date();
+
+    const ymd =
+    `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+
+
+    const rand =
+    String(Math.floor(1000 + Math.random()*9000));
+
+
+    document.getElementById("result-file-no")
+    .textContent =
+    `档案编号 PQA-${ymd}-${rand}`;
+
+
+
+    showScreen("result");
+
+}
+document.getElementById("btn-start").onclick = function(){
+    showScreen("test");
+    current = 0;
     renderQuestion();
-  }
-});
+};
