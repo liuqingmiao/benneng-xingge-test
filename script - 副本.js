@@ -214,28 +214,6 @@ function renderQuestion() {
 }
 
 // ---------- 选择答案 ----------
-// 上一题按钮
-btnBack.onclick = function () {
-  if (currentIndex > 0) {
-    currentIndex--;
-
-    renderQuestion();
-
-    const oldAnswer = answers[currentIndex];
-
-    if (oldAnswer) {
-      [...optionsBox.children].forEach((btn, i) => {
-        const key = Object.keys(QUESTIONS[currentIndex].options)[i];
-
-        if (key === oldAnswer) {
-          btn.classList.add("selected");
-        } else {
-          btn.classList.remove("selected");
-        }
-      });
-    }
-  }
-};
 function selectOption(key) {
   answers[currentIndex] = key;
   [...optionsBox.children].forEach((btn, i) => {
